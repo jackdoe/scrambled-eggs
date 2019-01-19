@@ -1,13 +1,13 @@
 name: unscramble_qrcode_reader
 
 description: multi qrcode reader
-author: borislav nikolov <borislav.nikolov@booking.com>
+author: borislav nikolov <jack@sofialondonmoskva.com>
 homepage: https://github.com/jackdoe/scrambled-eggs
 version: 0.1.0
 
 flutter:
   plugin:
-    androidPackage: com.scrambledeggs.flutter.unscramble.qrcodereader
+    androidPackage: xyz.scrambledeggs.flutter.unscramble.qrcodereader
     pluginClass: QRCodeReaderPlugin
 
 dependencies:

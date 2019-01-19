@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package com.scrambledeggs.flutter.unscramble.qrcodereader;
+package xyz.scrambledeggs.flutter.unscramble.qrcodereader;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -127,11 +127,8 @@ public class QRScanActivity extends Activity implements QRCodeReaderView.OnQRCod
         view.setOnQRCodeReadListener(this);
 
 
-        if (intent.getBooleanExtra(EXTRA_FORCE_FOCUS, false)) {
-            view.forceAutoFocus();
-        }
-
-        view.setAutofocusInterval(3530);
+        view.setAutofocusInterval(200);
+        view.forceAutoFocus();
         view.setTorchEnabled(intent.getBooleanExtra(EXTRA_TORCH_ENABLED, false));
     }
 

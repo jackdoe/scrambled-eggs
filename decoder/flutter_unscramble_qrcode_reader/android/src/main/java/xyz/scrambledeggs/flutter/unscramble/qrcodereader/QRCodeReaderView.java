@@ -1,4 +1,4 @@
-package com.scrambledeggs.flutter.unscramble.qrcodereader;
+package xyz.scrambledeggs.flutter.unscramble.qrcodereader;
 
 
 import android.content.Context;

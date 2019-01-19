@@ -1,4 +1,4 @@
-package com.scrambledeggs.unscramble;
+package xyz.scrambledeggs.unscramble;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;

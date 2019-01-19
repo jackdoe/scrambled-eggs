@@ -18,7 +18,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-package com.scrambledeggs.flutter.unscramble.qrcodereader;
+package xyz.scrambledeggs.flutter.unscramble.qrcodereader;
 
 import android.Manifest;
 import android.annotation.TargetApi;

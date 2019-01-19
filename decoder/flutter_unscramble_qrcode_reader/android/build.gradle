@@ -1,4 +1,4 @@
-group 'com.scrambledeggs.flutter.unscramble.qrcodereader'
+group 'xyz.scrambledeggs.flutter.unscramble.qrcodereader'
 version '1.0-SNAPSHOT'
 
 buildscript {
