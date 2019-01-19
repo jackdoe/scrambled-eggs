@@ -15,7 +15,7 @@ func main() {
 	var pchunkSize = flag.Int("chunkSize", 1000, "how much information per qrcode")
 	var pwidth = flag.Int("gifWidth", 1024, "gif width")
 	var pcompression = flag.String("compression", "gzip", "compress the input, supported: gzip, xz, none")
-	var pdelay = flag.Int("gifDelay", 50, "gif frame delay")
+	var pdelay = flag.Int("gifDelay", 80, "gif frame delay")
 	var precoveryLevel = flag.String("recoveryLevel", "high", "qrcode recovery level one of [ highest, high, medium, low ]")
 	flag.Parse()
 
