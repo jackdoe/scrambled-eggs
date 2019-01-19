@@ -84,30 +84,35 @@ Size?
 How?      
   The format is as follows:
   
-  the file is first compressed (xz, gzip, none are supported),
-  then splitted into chunks of 2kb, after that each chunk is
-  encoded with header:base64(data), and one extra frame is added
-  with meta data, that contains header:base64(meta data).
+  the file is first compressed (xz, gzip, none are supported), then
+  splitted into chunks of 2kb, after that each chunk is encoded with
+  crc:base64(header):base64(data), and one extra frame is added with
+  meta data, that contains header:base64(meta data).
   
   Everything is encoded as string so it is easy to use standard
   qrcode libraries.
 
 <span id="format">frame format:</span>
-  crc32:chunk type:chunk id:out of:value
+  crc32:base64(header):base64(value)
 
 
 crc32: this is the crc32 sum of (chunk type:chunk id:out of:value),
   because there are a lot of errors when reading qrcodes, we simply
   ignore the decoded result, and continue to scan, if the crc is mismatch
-  
-chunk type:
-  1: DATA, the following frame contains data
-  0: META, the following frame contains meta data
-  
-chunk id: this is simply the index of the chunk, if the encoded file
-  is 100kb and we have 2kb chunks, we will have 100/2 chunks to "download"
-  
-out of: number that specifies how long is the data, used for progress bar
+
+header:
+  base64 encoded string version:chunkType:chunkId:outOf
+
+  version: at the moment it is 0
+
+  chunk type:
+    1: DATA, the following frame contains data
+    0: META, the following frame contains meta data
+    
+  chunk id: this is simply the index of the chunk, if the encoded file
+    is 100kb and we have 2kb chunks, we will have 100/2 chunks to "download"
+    
+  out of: number that specifies how long is the data, used for progress bar
   
 value: this is base64 encoded binary
 
@@ -123,7 +128,7 @@ META-DATA VALUE:
 
 name: string, the file name
 sha: string, the file's sha256 printed as hex string
-outOf: int, total number of chunks, redundant as the value in the header
+totalCount: int, total number of chunks, redundant as the value in the header
 contentType: string, mime content type of the data
 totalSize: int, size in bytes
 compression: string that is one of gzip,xz or none
@@ -207,7 +212,6 @@ Scramble your own file: <input type="file" name="file"> <input type="submit" val
   * once the app is released add url to dowlonad it as a qrcode :D
   * change the format to include some kind of uuid so multiple fies
     can be donwloaded in the same time
-  * change the format to crc:base64(header):base64(value)
 
 <span id="credit">Credit:</span>
   * Icons made by <a href="https://www.flaticon.com/authors/popcic" title="Popcic">Popcic</a> from <a href="https://www.flaticon.com/" 			    title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" 			    title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a>

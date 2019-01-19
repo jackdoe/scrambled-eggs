@@ -146,31 +146,54 @@ public class QRScanActivity extends Activity implements QRCodeReaderView.OnQRCod
                     String text = code.getText();
                     crc.reset();
                     String[] splitted = text.split(":", 5);
-                    if (splitted.length != 5) {
-                        System.out.println("bad count, expected 5 got " + splitted.length);
-                        return;
-                    }
-
-
-                    long crc32 = Long.parseLong(splitted[0]);
-                    crc.update(String.format("%s:%s:%s:%s", splitted[1], splitted[2], splitted[3], splitted[4]).getBytes());
-                    if (crc.getValue() != crc32) {
-                        System.out.println(String.format("bad crc, got %d expected %d", crc.getValue(), crc32));
-                        return;
-                    }
                     byte[] value;
                     int type, id, outOf;
-                    try {
-                        type = Integer.parseInt(splitted[1]);
-                        id = Integer.parseInt(splitted[2]);
-                        outOf = Integer.parseInt(splitted[3]);
-                        value = Base64.decode(splitted[4].replace("*", ""), Base64.DEFAULT);
-                    } catch (Exception e) {
-                        e.printStackTrace();
+
+                    if (splitted.length == 3) {
+                        long crc32 = Long.parseLong(splitted[0]);
+                        crc.update(splitted[1].getBytes());
+                        crc.update(':');
+                        crc.update(splitted[2].getBytes());
+                        if (crc.getValue() != crc32) {
+                            //System.out.println(String.format("bad crc, got %d expected %d", crc.getValue(), crc32));
+                            return;
+                        }
+                        String header = new String(Base64.decode(splitted[1], Base64.DEFAULT));
+                        String svalue = splitted[2];
+                        String[] splittedHeader = header.split(":");
+
+                        try {
+                            type = Integer.parseInt(splittedHeader[1]);
+                            id = Integer.parseInt(splittedHeader[2]);
+                            outOf = Integer.parseInt(splittedHeader[3]);
+                            value = Base64.decode(svalue.replace("*", ""), Base64.DEFAULT);
+                        } catch (Exception e) {
+                            //e.printStackTrace();
+                            return;
+                        }
+                    } else if (splitted.length == 5) {
+                        long crc32 = Long.parseLong(splitted[0]);
+                        crc.update(String.format("%s:%s:%s:%s", splitted[1], splitted[2], splitted[3], splitted[4]).getBytes());
+                        if (crc.getValue() != crc32) {
+                            //System.out.println(String.format("bad crc, got %d expected %d", crc.getValue(), crc32));
+                            return;
+                        }
+                        try {
+                            type = Integer.parseInt(splitted[1]);
+                            id = Integer.parseInt(splitted[2]);
+                            outOf = Integer.parseInt(splitted[3]);
+                            value = Base64.decode(splitted[4].replace("*", ""), Base64.DEFAULT);
+                        } catch (Exception e) {
+                            return;
+                        }
+                    } else {
+                        //System.out.println("bad count, expected 5 got " + splitted.length);
                         return;
                     }
+
+
                     if (type == TYPE_META) {
-                        String[] meta = new String(value).replace(" ", "").split(":");
+                        String[] meta = new String(value).split(":");
 
                         item.name = meta[0];
                         item.totalSHA = meta[1];
@@ -220,7 +243,8 @@ public class QRScanActivity extends Activity implements QRCodeReaderView.OnQRCod
                     progress.setText(String.format("%.2fKB/%.2fKB, speed: %.2fkbps, %s %s %d/%d, compression: %s", size / 1024D, item.totalSize / 1024D, speed, item.name == null ? "?" : item.name, item.contentType == null ? "?" : item.contentType, item.chunks.size(), item.outOf == 0 ? outOf : item.outOf, item.compression == null ? "unknown" : item.compression));
                 } catch (Exception e) {
                     item = new Item();
-                    e.printStackTrace();
+                    return;
+                    //e.printStackTrace();
                 }
             }
         }
@@ -245,6 +269,6 @@ public class QRScanActivity extends Activity implements QRCodeReaderView.OnQRCod
         public int totalSize;
         public String contentType;
         public Map<Integer, byte[]> chunks = new ConcurrentHashMap<>();
-        String compression;
+        public String compression;
     }
 }

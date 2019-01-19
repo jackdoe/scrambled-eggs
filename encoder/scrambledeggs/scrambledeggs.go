@@ -16,16 +16,16 @@ import (
 	png "image/png"
 	"log"
 	"net/http"
+	"strings"
 )
 
 // format is as follows
 // chunk type, chunk id, out of,  data
-// n:n:data
-// e.g.
-// crc32:0:0:1:example.txt:sha:total:type
-// crc32:2:0:3:foo            // text
-// crc32:2:1:3:bar            // text
-// crc32:2:1:3:baz            // text
+
+// new format is
+// crc32:base64(header):base64(value)pad
+// header is
+// type:id:outOf:uuid
 
 func compressGzip(b []byte) []byte {
 	var buf bytes.Buffer
@@ -57,15 +57,18 @@ func padRight(str, pad string, lenght int) string {
 	}
 }
 
+func makeHeader(chunkType, chunkId, outOf int) string {
+	return base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("0:%d:%d:%d", chunkType, chunkId, outOf)))
+}
+
 func encode(recoveryLevel qrcode.RecoveryLevel, chunkSize, width int, chunkType int, chunkId int, outOf int, input []byte) image.Image {
 	str := base64.StdEncoding.EncodeToString(input)
-
-	data := fmt.Sprintf("%d:%d:%d:%s", chunkType, chunkId, outOf, str)
+	header := makeHeader(chunkType, chunkId, outOf)
+	data := fmt.Sprintf("%s:%s", header, str)
 	data = padRight(data, "*", chunkSize)
 
 	sum := crc32.ChecksumIEEE([]byte(data))
 	data = fmt.Sprintf("%010d:%s", sum, data)
-
 	var qr []byte
 	qr, err := qrcode.Encode(data, recoveryLevel, width)
 	if err != nil {
@@ -188,7 +191,20 @@ func Scramble(config *Config, name string, dat []byte) ([]byte, error) {
 		frames = append(frames, <-c)
 	}
 
-	frames = append(frames, encode(config.RecoveryLevel, config.ChunkSize, config.Width, META, 0, 1, []byte(fmt.Sprintf("%s:%s:%d:%s:%d:%s", name, hex.EncodeToString(h.Sum(nil)), totalChunks, contentType, len(dat), CompressionToString(config.Compression)))))
+	frames = append(frames,
+		encode(config.RecoveryLevel,
+			config.ChunkSize,
+			config.Width,
+			META,
+			0,
+			1,
+			[]byte(fmt.Sprintf("%s:%s:%d:%s:%d:%s",
+				strings.Replace(strings.Replace(name, ":", "_", -1), "/", "_", -1),
+				hex.EncodeToString(h.Sum(nil)),
+				totalChunks,
+				contentType,
+				len(dat),
+				CompressionToString(config.Compression)))))
 
 	for _, frame := range frames {
 		addTo(outGif, config.Delay, frame)
