@@ -128,8 +128,8 @@ contentType: string, mime content type of the data
 totalSize: int, size in bytes
 compression: string that is one of gzip,xz or none
 
-the data is also padded with space (" "), so make sure to do
-value.replace(" ","")
+the data is also padded with "*", so make sure to do
+value.replace("*","")
 
 (main reason for the extra padding is so the bar-code are not very
 different in size, and it is easier to be decoded one after the other)
