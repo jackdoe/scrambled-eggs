@@ -104,7 +104,8 @@ How?
 
 crc32: this is the crc32 sum of (chunk type:chunk id:out of:value),
   because there are a lot of errors when reading qrcodes, we simply
-  ignore the decoded result, and continue to scan, if the crc is mismatch
+  ignore the decoded result, and continue to scan, if the crc is
+  mismatch
 
 header:
   base64 encoded string version:chunkType:chunkId:outOf
@@ -116,9 +117,11 @@ header:
     0: META, the following frame contains meta data
     
   chunk id: this is simply the index of the chunk, if the encoded file
-    is 100kb and we have 2kb chunks, we will have 100/2 chunks to "download"
+    is 100kb and we have 2kb chunks, we will have 100/2 chunks to
+    "download"
     
-  out of: number that specifies how long is the data, used for progress bar
+  out of: number that specifies how long is the data, used for
+  progress bar
   
 value: this is base64 encoded binary
 
@@ -134,7 +137,7 @@ META-DATA VALUE:
 
 name: string, the file name
 sha: string, the file's sha256 printed as hex string
-totalCount: int, total number of chunks, redundant as the value in the header
+totalCount: int, total number of chunks, same as the header value
 contentType: string, mime content type of the data
 totalSize: int, size in bytes
 compression: string that is one of gzip,xz or none
