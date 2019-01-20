@@ -118,7 +118,7 @@ public class QRScanActivity extends Activity implements QRCodeReaderView.OnQRCod
         List<BarcodeFormat> allowed = new ArrayList<>();
         allowed.add(BarcodeFormat.QR_CODE);
         //hints.put(DecodeHintType.PURE_BARCODE, false);
-        //hints.put(DecodeHintType.TRY_HARDER,true);
+        //hints.put(DecodeHintType.TRY_HARDER,false);
         hints.put(DecodeHintType.POSSIBLE_FORMATS, allowed);
         view.setDecodeHints(hints);
 
@@ -192,7 +192,7 @@ public class QRScanActivity extends Activity implements QRCodeReaderView.OnQRCod
 
 
                     if (type == TYPE_META) {
-                        String[] meta = new String(value).split(":");
+                        String[] meta = new String(value).replace(" ","").split(":");
 
                         item.name = meta[0];
                         item.totalSHA = meta[1];
@@ -242,8 +242,8 @@ public class QRScanActivity extends Activity implements QRCodeReaderView.OnQRCod
                     progress.setText(String.format("%.2fKB/%.2fKB, speed: %.2fkbps, %s %s %d/%d, compression: %s", size / 1024D, item.totalSize / 1024D, speed, item.name == null ? "?" : item.name, item.contentType == null ? "?" : item.contentType, item.chunks.size(), item.outOf == 0 ? outOf : item.outOf, item.compression == null ? "unknown" : item.compression));
                 } catch (Exception e) {
                     item = new Item();
+                    e.printStackTrace();
                     return;
-                    //e.printStackTrace();
                 }
             }
         }
