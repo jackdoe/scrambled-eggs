@@ -6,9 +6,21 @@ import (
 	"github.com/jackdoe/scrambled-eggs/encoder/scrambledeggs"
 	"io"
 	"io/ioutil"
-	//"log"
-	//	"os"
+	"log"
+	"net/http"
 )
+
+// taken from https://github.com/aviddiviner/gin-limit/blob/master/limit.go
+func MaxAllowed(n int, f gin.HandlerFunc) gin.HandlerFunc {
+	sem := make(chan struct{}, n)
+	acquire := func() { sem <- struct{}{} }
+	release := func() { <-sem }
+	return func(c *gin.Context) {
+		acquire()       // before request
+		defer release() // after request
+		f(c)
+	}
+}
 
 func main() {
 
@@ -22,30 +34,39 @@ func main() {
 
 	router := gin.Default()
 	config := scrambledeggs.NewConfig(*pwidth, *pdelay, *pchunkSize, *precoveryLevel, *pcompression)
-	router.MaxMultipartMemory = 1024 * 100 // 100 kb
+	router.MaxMultipartMemory = 1024 * 1024 // 1mb, rest goes to file
 	router.Static("/", "./public")
-	router.POST("/upload", func(c *gin.Context) {
+	router.POST("/upload", MaxAllowed(2, func(c *gin.Context) {
 		file, err := c.FormFile("file")
 		if err != nil {
-			panic(err)
+			log.Printf("err: %s", err.Error())
+			c.String(http.StatusInternalServerError, err.Error())
+			return
+
 		}
 
 		src, err := file.Open()
 		if err != nil {
-			panic(err)
+			log.Printf("err: %s", err.Error())
+			c.String(http.StatusInternalServerError, err.Error())
+			return
 		}
 		defer src.Close()
 
 		dat, err := ioutil.ReadAll(src)
 		if err != nil && err != io.EOF {
-			panic(err)
+			log.Printf("err: %s", err.Error())
+			c.String(http.StatusInternalServerError, err.Error())
+			return
 		}
 		res, err := scrambledeggs.Scramble(config, file.Filename, dat)
 		if err != nil && err != io.EOF {
-			panic(err)
+			log.Printf("err: %s", err.Error())
+			c.String(http.StatusInternalServerError, err.Error())
+			return
 		}
 
 		c.Data(200, "image/gif", res)
-	})
+	}))
 	router.Run(*pbind)
 }
