@@ -33,8 +33,6 @@
 * <a href="#android">Android Decoder App</a>
 * <a href="#upload">Make Your Own GIF</a>
 * <a href="#example">Example GIFs</a>
-* <a href="#todo">TODO</a>
-* <a href="#credit">Credit</a>
 * <a href="#license">License</a>
 * <a href="https://github.com/jackdoe/scrambled-eggs">Fork on github</a>
 
@@ -74,6 +72,7 @@ Why?
 
   It is also extra funny now that GIFs are supported everywhere haha.
 
+
 Speed?
   If you are lucky you can get to 20-30kbps, but usually you miss one
   frame from 30 and you have to wait the whole gif to rotate :(
@@ -87,9 +86,9 @@ How?
   The format is as follows:
   
   the file is first compressed (xz, gzip, none are supported), then
-  splitted into chunks of 2kb, after that each chunk is encoded with
-  crc:base64(header):base64(data), and one extra frame is added with
-  meta data, that contains header:base64(meta data).
+  splitted into chunks, after that each chunk is encoded with
+  crc32:base64(header):base64(data), and one extra frame is added with
+  meta data, that contains crc32:base64(header):base64(meta data).
   
   Everything is encoded as string so it is easy to use standard
   qrcode libraries.
@@ -195,7 +194,8 @@ different in size, and it is easier to be decoded one after the other)
 <hr>
 <form id="upload" action="/upload" method="post" enctype="multipart/form-data">
 Scramble your own file: <input type="file" name="file"> <input type="submit" value="Scramble">
-(max size 100kb, you can also clone the repo and build encoder/cmd)
+Max size 100kb, you can also clone the repo and build encoder/cmd.
+Keep in mind the filename <b>will</b> be in the metadata.
 </form>
 <hr>
 <span id="example">Examples:</span><br>
