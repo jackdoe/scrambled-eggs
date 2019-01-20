@@ -48,30 +48,30 @@ Why?
   Everything I do is being tracked and monitored, the clicks, every
   character I type, every scroll I do. Why? because I gave up ground,
   little by little, convenience here, nice restaurant recommendation
-  there, small personalized messages here, now we are beyond the point
-  of no return. Add my flight to the calendar automatically, sure, read
-  my mail, no problem, automatically take meeting notes of course I
-  would want that. Yes I want to have easy search in all git repositories.
-  Who wouldn't want to use AI to correct their grammar? Text searching
-  my photos sounds great. I love the Assistant movies, it is so
-  personal, and the music is so nice.
+  there, small personalized messages looks gread. Add my flight to the
+  calendar automatically, sure, read my mail, no problem,
+  automatically take meeting notes of course I would want that. Yes I
+  want to have easy search in all git repositories.  Who wouldn't want
+  to use AI to correct their grammar? Text searching my photos sounds
+  great. I love the Assistant movies, it is so personal, and the music
+  is so nice.
 
   
   I betrayed myself.
 
-  Scrambled Eggs lets me download files on my phone in airplane
-  mode. It encodes data with qrcodes and then you can download through
-  the camera with a special decoder.
 
   I just want to read phrack without the whole world knowing.. is it
   too much to ask?
 
+  So I made Scrambled Eggs as a commentary on the modern world, now
+  that we are beyond the point of no return. At least as a reminder of
+  what I have lost.
+
   There are much easier ways to do this (like just downloading the
   file on your computer and then uploading it to your phone),
-  but I felt really cool when I downloaded a file in airplane mode :D
+  but I felt really cool when I got a file in airplane mode :D
 
   It is also extra funny now that GIFs are supported everywhere haha.
-
 
 Speed?
   If you are lucky you can get to 20-30kbps, but usually you miss one
@@ -79,8 +79,13 @@ Speed?
   I believe I can speed it by playing the same gif with different rate
   next to each other and scan multiple qrcodes simultaneously.
 
+  It depends on the gif encoding delay, at the moment its 800ms by
+  default, I have tried with 500ms and even 100ms but 800ms with
+  1000kb of data per chunk seems to work best.
+
 Size?
-  50kb text becomes about 300kb gif
+  50kb text becomes about 300kb gif, 480kb text like <a href="https://en.wikipedia.org/wiki/Neuromancer">Neuromancer</a>
+  become around 4.5MB. with 2kb blocks
 
 How?      
   The format is as follows:
@@ -175,7 +180,9 @@ different in size, and it is easier to be decoded one after the other)
       }
   }
 
+example <a href="https://github.com/jackdoe/scrambled-eggs/tree/master/encoder">encoder</a> and <a href="https://github.com/jackdoe/scrambled-eggs/tree/master/decoder/flutter_unscramble_qrcode_reader">flutter decoder</a>
 <hr>
+
 
 <span id="android">Android app:</span>
   you can fork it on github, install flutter and do flutter run \
