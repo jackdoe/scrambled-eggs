@@ -125,10 +125,12 @@ public class QRScanActivity extends Activity implements QRCodeReaderView.OnQRCod
         progress = (TextView) findViewById(R.id.text);
         Intent intent = getIntent();
         view.setOnQRCodeReadListener(this);
-
+        if (intent.getBooleanExtra(EXTRA_FORCE_FOCUS, false)) {
+            view.forceAutoFocus();
+        }
 
         view.setAutofocusInterval(200);
-        view.forceAutoFocus();
+        view.setAutofocusInterval(intent.getIntExtra(EXTRA_FOCUS_INTERVAL, 2000));
         view.setTorchEnabled(intent.getBooleanExtra(EXTRA_TORCH_ENABLED, false));
     }
 

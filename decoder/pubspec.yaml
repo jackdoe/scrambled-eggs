@@ -20,6 +20,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
   path_provider: ^0.4.1
+  shared_preferences: ^0.4.3
   unscramble_qrcode_reader:
     path: ./flutter_unscramble_qrcode_reader
 

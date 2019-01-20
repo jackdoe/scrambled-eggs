@@ -5,12 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:path_provider/path_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:unscramble_qrcode_reader/qrcode_reader.dart';
 
 int newLineN = "\n".codeUnitAt(0);
 int newLineR = "\r".codeUnitAt(0);
 int tabChar = "\t".codeUnitAt(0);
 int spaceChar = " ".codeUnitAt(0);
+const String FORCE_AUTO_FOCUS_KEY = "forceAutoFocus";
+const String ENABLE_TORCH_KEY = "enableTorch";
+const String AUTO_FOCUS_INTERVAL_KEY = "autoFocusInterval";
 
 List<int> lastLines(List<int> buf, int n) {
   List<int> out = new List();
@@ -121,6 +125,14 @@ class TextLine extends StatelessWidget {
   }
 }
 
+class Loading extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return new Scaffold(
+        body: Center(child: TextLine("loading...", FontWeight.bold, 18)));
+  }
+}
+
 class QrApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -144,9 +156,14 @@ class _QrPageState extends State<QrPage> {
   List<FileSystemEntity> downloaded;
 
   Future<Item> scan() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int autofocusInterval = (prefs.getInt(AUTO_FOCUS_INTERVAL_KEY) ?? 1000);
+    bool forceAutoFocus = (prefs.getBool(FORCE_AUTO_FOCUS_KEY) ?? true);
+    bool enableTorch = (prefs.getBool(ENABLE_TORCH_KEY) ?? false);
     return new QRCodeReader()
-        .setForceAutoFocus(false)
-        .setTorchEnabled(false)
+        .setForceAutoFocus(forceAutoFocus)
+        .setAutoFocusIntervalInMs(autofocusInterval)
+        .setTorchEnabled(enableTorch)
         .setHandlePermissions(true)
         .setExecuteAfterPermissionGranted(true)
         .scan()
@@ -204,7 +221,7 @@ class _QrPageState extends State<QrPage> {
       if (item == null) {
         return null;
       }
-      var name = new DateTime.now().millisecondsSinceEpoch/1000;
+      var name = new DateTime.now().millisecondsSinceEpoch / 1000;
 
       var fn = name.toStringAsFixed(0) +
           "@" +
@@ -232,20 +249,30 @@ class _QrPageState extends State<QrPage> {
   @override
   Widget build(BuildContext context) {
     if (downloaded == null) {
-      return new Scaffold(
-        body: new Center(child: TextLine("loading...", FontWeight.bold, 18)),
-      );
+      return Loading();
     }
 
     return new Scaffold(
-      floatingActionButton: new FloatingActionButton(
-        onPressed: () {
-          doScan();
-        },
-        backgroundColor: Colors.black,
-        child: new Icon(Icons.add, color: Colors.white),
-        mini: true,
-      ),
+      floatingActionButton: ButtonBar(
+          mainAxisSize: MainAxisSize.max,
+          alignment: MainAxisAlignment.spaceAround,
+          children: <Widget>[
+            new FlatButton(
+              child: TextLine("settings", FontWeight.bold, 14),
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => new SettingsPage()));
+              },
+            ),
+            new FlatButton(
+              child: TextLine("unscramble", FontWeight.bold, 18),
+              onPressed: () {
+                doScan();
+              },
+            ),
+          ]),
       body: ListView.builder(
         itemBuilder: (BuildContext context, int index) {
           var f = downloaded[index];
@@ -268,7 +295,10 @@ class _QrPageState extends State<QrPage> {
   }
 
   String getName(FileSystemEntity f) {
-    return f.path.replaceAll(f.parent.path + "/", "").replaceAll("@", " ") + " " + (f.statSync().size / 1024).toStringAsFixed(1) + "kb";
+    return f.path.replaceAll(f.parent.path + "/", "").replaceAll("@", " ") +
+        " " +
+        (f.statSync().size / 1024).toStringAsFixed(1) +
+        "kb";
   }
 
   void _showDeleteDialog(FileSystemEntity f) {
@@ -332,11 +362,7 @@ class BookState extends State<BookPage> {
   @override
   Widget build(BuildContext context) {
     if (book == null || book.length == 0) {
-      return new Scaffold(
-        appBar: new AppBar(
-          title: TextLine("loading", FontWeight.bold, 18)
-        ),
-      );
+      return Loading();
     }
 
     return new Scaffold(
@@ -391,6 +417,93 @@ class BookState extends State<BookPage> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class SettingsPage extends StatefulWidget {
+  SettingsPage({Key key}) : super(key: key);
+
+  @override
+  SettingsState createState() => SettingsState();
+}
+
+class SettingsState extends State<SettingsPage> {
+  int autoFocusInterval;
+  bool forceAutoFocus;
+  bool enableTorch;
+  bool loaded = false;
+
+  @override
+  void initState() {
+    SharedPreferences.getInstance().then((prefs) {
+      setState(() {
+        autoFocusInterval = (prefs.getInt(AUTO_FOCUS_INTERVAL_KEY) ?? 1000);
+        forceAutoFocus = (prefs.getBool(FORCE_AUTO_FOCUS_KEY) ?? true);
+        enableTorch = (prefs.getBool(ENABLE_TORCH_KEY) ?? false);
+        loaded = true;
+      });
+    });
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    if (loaded == false) {
+      return Loading();
+    }
+    return new Scaffold(
+      body: ListView(children: <Widget>[
+        ListTile(
+          title: TextLine("Force Auto Focus", FontWeight.normal, 16),
+          trailing: Checkbox(
+              value: forceAutoFocus,
+              onChanged: (val) {
+                SharedPreferences.getInstance().then((prefs) {
+                  prefs.setBool(FORCE_AUTO_FOCUS_KEY, val);
+                }).then((x) {
+                  setState(() {
+                    forceAutoFocus = val;
+                  });
+                });
+              }),
+        ),
+        ListTile(
+          title: TextLine("Enable Torch", FontWeight.normal, 16),
+          trailing: Checkbox(
+              value: enableTorch,
+              onChanged: (val) {
+                SharedPreferences.getInstance().then((prefs) {
+                  prefs.setBool(ENABLE_TORCH_KEY, val);
+                }).then((x) {
+                  setState(() {
+                    enableTorch = val;
+                  });
+                });
+              }),
+        ),
+        ListTile(
+          title:
+          TextFormField(
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+                prefixIcon: TextLine("Auto Focus Interval:", FontWeight.normal, 16),
+            ),
+            initialValue: autoFocusInterval.toString(),
+            onSaved: (input) {
+              int _value = num.tryParse(input);
+              SharedPreferences.getInstance().then((prefs) {
+                prefs.setInt(AUTO_FOCUS_INTERVAL_KEY, _value);
+              }).then((x) {
+                setState(() {
+                  autoFocusInterval = _value;
+                });
+              });
+            }
+          ),
+        )
+      ]),
     );
   }
 }
