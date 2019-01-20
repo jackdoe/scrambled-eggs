@@ -438,7 +438,7 @@ class SettingsState extends State<SettingsPage> {
   void initState() {
     SharedPreferences.getInstance().then((prefs) {
       setState(() {
-        autoFocusInterval = (prefs.getInt(AUTO_FOCUS_INTERVAL_KEY) ?? 1000);
+        autoFocusInterval = (prefs.getInt(AUTO_FOCUS_INTERVAL_KEY) ?? 200);
         forceAutoFocus = (prefs.getBool(FORCE_AUTO_FOCUS_KEY) ?? true);
         enableTorch = (prefs.getBool(ENABLE_TORCH_KEY) ?? false);
         loaded = true;
