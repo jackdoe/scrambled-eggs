@@ -207,7 +207,10 @@ example <a href="https://github.com/jackdoe/scrambled-eggs/tree/master/encoder">
 <form id="upload" action="/upload" method="post" enctype="multipart/form-data">
 Scramble your own file: <input type="file" name="file"> <input type="submit" value="Scramble">
 Max size 100kb, you can also clone the repo and build encoder/cmd.
-Keep in mind the filename <b>will</b> be in the metadata.
+Keep in mind the filename <b>will</b> be in the metadata. There is
+also a limit of 2 concurrent processors at the same time, because it
+is running in a small digital ocean dropplet, and it is quite CPU
+heavy.
 </form>
 <hr>
 <span id="example">Examples:</span><br>
