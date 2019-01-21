@@ -155,20 +155,24 @@ different in size, and it is easier to be decoded one after the other)
   totalPieces, sha
   for {
       barcodeString := decodeBarcode()
-      splitted := strings.SplitN(barcodeString, ":",5)
+      splitted := split(barcodeString, ":", 3)
+
       // compare the crc32 with the rest of the frame
-      // crc32:(chunk type:chunk id:out of:value)
+      // crc32:(header:data)
       if (crc32(splitted[1:..]) != itoa(splitted[0]))
-         continue // if mismatching, ignore
+         continue // if mismatching, ignore the frame
       
-      byte[] data = base64decode(splitted[4])
-      type := atoi(splitted[1])
+      data = base64decode(splitted[2])
+      header = split(base64decode(header[1]),":")
+
+      type := atoi(header[1])
       
-      // if the chunk type is DATA, colect it
+      // if the chunk type is DATA, colect it at
       if (type == 1)
-          pieces[atoi(splitted[2])] = data
-      else if type == 1 {
-          meta := strings.Split(":",string(data))
+          pieces[atoi(header[2])] = data
+      else if type == 0 {
+          // some old gifs I encoded have space padded meta value,
+          meta := replace(" ", "", split(data,":"))
           totalPieces = atoi(meta[2])
           sha = meta[...
           filename = ..
