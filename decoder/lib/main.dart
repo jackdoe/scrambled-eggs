@@ -348,6 +348,7 @@ class BookState extends State<BookPage> {
   final List<int> item;
   int currentPage = 0;
   double fontSize = 18;
+  bool fitBox = false;
   ScrollController _scrollController;
 
   BookState(this.item);
@@ -365,53 +366,58 @@ class BookState extends State<BookPage> {
       return Loading();
     }
 
+    var buttons = <Widget>[
+      new IconButton(
+          onPressed: () {
+            setState(() {
+              if (currentPage > 0) {
+                currentPage--;
+              }
+            });
+            _scrollController
+                .jumpTo(_scrollController.position.maxScrollExtent);
+          },
+          padding: EdgeInsets.all(2.0),
+          icon: TextLine("<", FontWeight.bold, fontSize - 4)),
+      new IconButton(
+          onPressed: () {
+            // when pressed we will open menu to add notes
+            // for now just do nothing
+            setState(() {
+              fitBox = !fitBox;
+            });
+          },
+          padding: EdgeInsets.all(0.0),
+          iconSize: 18,
+          icon: TextLine(
+              (currentPage + 1).toString() + "/" + book.length.toString(),
+              FontWeight.bold,
+              fontSize - 4)),
+      new IconButton(
+          onPressed: () {
+            setState(() {
+              currentPage = (currentPage + 1) % book.length;
+            });
+            _scrollController.jumpTo(0);
+          },
+          padding: EdgeInsets.all(2.0),
+          icon: TextLine(">", FontWeight.bold, fontSize - 4)),
+    ];
+
+    var textLine = TextLine(book[currentPage], FontWeight.normal, fontSize);
+    var fittedText = new FittedBox(fit: BoxFit.fitWidth, child: textLine);
+
     return new Scaffold(
       floatingActionButton: ButtonBar(
         mainAxisSize: MainAxisSize.min,
         alignment: MainAxisAlignment.end,
-        children: <Widget>[
-          new IconButton(
-              onPressed: () {
-                setState(() {
-                  if (currentPage > 0) {
-                    currentPage--;
-                  }
-                });
-                _scrollController
-                    .jumpTo(_scrollController.position.maxScrollExtent);
-              },
-              padding: EdgeInsets.all(2.0),
-              icon: TextLine("<", FontWeight.bold, fontSize - 4)),
-          new IconButton(
-              onPressed: () {
-                // when pressed we will open menu to add notes
-                // for now just do nothing
-              },
-              padding: EdgeInsets.all(0.0),
-              iconSize: 18,
-              icon: TextLine(
-                  (currentPage + 1).toString() + "/" + book.length.toString(),
-                  FontWeight.bold,
-                  fontSize - 4)),
-          new IconButton(
-              onPressed: () {
-                setState(() {
-                  currentPage = (currentPage + 1) % book.length;
-                });
-                _scrollController.jumpTo(0);
-              },
-              padding: EdgeInsets.all(2.0),
-              icon: TextLine(">", FontWeight.bold, fontSize - 4)),
-        ],
+        children: buttons,
       ),
       body: new SingleChildScrollView(
         controller: _scrollController,
         child: new SafeArea(
           child: new Container(
-            child: new FittedBox(
-                fit: BoxFit.fitWidth,
-                child:
-                    TextLine(book[currentPage], FontWeight.normal, fontSize)),
+            child: fitBox ? textLine : fittedText,
             margin: const EdgeInsets.all(4.0),
             padding: const EdgeInsets.all(4.0),
           ),
@@ -446,10 +452,8 @@ class SettingsState extends State<SettingsPage> {
     });
   }
 
-
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     if (loaded == false) {
       return Loading();
     }
@@ -484,24 +488,27 @@ class SettingsState extends State<SettingsPage> {
               }),
         ),
         ListTile(
-          title:
-          TextFormField(
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(
-                prefixIcon: TextLine("Auto Focus Interval:", FontWeight.normal, 16),
-            ),
-            initialValue: autoFocusInterval.toString(),
-            onSaved: (input) {
-              int _value = num.tryParse(input);
-              SharedPreferences.getInstance().then((prefs) {
-                prefs.setInt(AUTO_FOCUS_INTERVAL_KEY, _value);
-              }).then((x) {
-                setState(() {
-                  autoFocusInterval = _value;
-                });
-              });
-            }
-          ),
+          title: TextFormField(
+              keyboardType: TextInputType.number,
+              decoration: InputDecoration(
+                prefixIcon:
+                    TextLine("Auto Focus Interval:", FontWeight.normal, 16),
+              ),
+              initialValue: autoFocusInterval.toString(),
+              onFieldSubmitted: (input) {
+                int _value = num.tryParse(input);
+                if (_value > 10) {
+                  SharedPreferences.getInstance().then((prefs) {
+                    prefs.setInt(AUTO_FOCUS_INTERVAL_KEY, _value);
+                  }).then((x) {
+                    setState(() {
+                      autoFocusInterval = _value;
+                    });
+                  });
+                }
+
+              },
+          )
         )
       ]),
     );
