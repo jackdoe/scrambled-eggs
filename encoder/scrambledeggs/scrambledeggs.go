@@ -15,6 +15,7 @@ import (
 	"image/gif"
 	png "image/png"
 	"log"
+	"math/rand"
 	"net/http"
 	"strings"
 )
@@ -206,6 +207,9 @@ func Scramble(config *Config, name string, dat []byte) ([]byte, error) {
 				len(dat),
 				CompressionToString(config.Compression)))))
 
+	rand.Shuffle(len(frames), func(i, j int) {
+		frames[i], frames[j] = frames[j], frames[i]
+	})
 	for _, frame := range frames {
 		addTo(outGif, config.Delay, frame)
 	}
