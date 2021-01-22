@@ -1,1 +1,1 @@
-[scramble and unscramble eggs](https://scrambled-eggs.xyz)
+[scramble and unscramble eggs](https://txt.black/scrambled-eggs)
