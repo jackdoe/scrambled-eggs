@@ -1,1 +1,1 @@
-[scramble and unscramble eggs](https://txt.black/scrambled-eggs/)
+[scramble and unscramble eggs](https://punkjazz.org/scrambled-eggs/)
